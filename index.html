@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>灵溪仙途 · 入山</title>
+<meta name="description" content="和道友一起在云海上的灵溪山修仙。打开即玩，无需下载。">
+<style>
+  html,body{margin:0;height:100%}
+  body{display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#f4f2e6,#dbe8de);color:#2f5546;font-family:"Noto Serif SC","Songti SC",serif}
+  .card{text-align:center;padding:24px}
+  .seal{display:inline-grid;place-items:center;width:64px;height:64px;border:2px solid #b4513f;color:#b4513f;border-radius:10px;font-size:15px;line-height:1.15;letter-spacing:2px;margin-bottom:14px}
+  h1{font-size:20px;letter-spacing:3px;margin:0 0 8px;font-weight:600}
+  p{font-size:13px;color:#6b7560;margin:0 0 18px;font-family:sans-serif}
+  .bar{width:180px;height:4px;margin:0 auto;border-radius:2px;background:#c9d5bd;overflow:hidden}
+  .bar span{display:block;width:40%;height:100%;background:#3f7d6b;border-radius:2px;animation:s 1.4s ease-in-out infinite}
+  @keyframes s{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
+  a{color:#3f7d6b}
+</style>
+</head>
+<body>
+<div class="card" role="status" aria-live="polite">
+  <div class="seal">灵溪<br>仙途</div>
+  <h1 id="t">正在唤醒灵溪山…</h1>
+  <p id="s">山中云雾正浓，首次进入可能需要半分钟左右，请稍候</p>
+  <div class="bar"><span></span></div>
+</div>
+<script>
+// This page is always online (static hosting), so players see the waking screen at once while the game server
+// on Render's free plan starts up; as soon as it answers we move them into the game.
+const GAME = 'https://lingxi-xiantu.onrender.com/';
+const started = Date.now();
+async function poll() {
+  try {
+    await fetch(GAME + 'api/health?ts=' + Date.now(), { mode: 'no-cors', cache: 'no-store' });
+    location.replace(GAME + location.search + location.hash);
+    return;
+  } catch (e) { /* still asleep or offline */ }
+  const waited = (Date.now() - started) / 1000;
+  if (waited > 90) {
+    document.getElementById('t').textContent = '灵溪山暂时没有回应';
+    document.getElementById('s').innerHTML = '可能是网络不稳，<a href="' + GAME + '">点这里直接进入</a> 或稍后再试';
+    return;
+  }
+  setTimeout(poll, 2500);
+}
+poll();
+</script>
+</body>
+</html>
